@@ -1,0 +1,25 @@
+# Dipendenze
+node_modules/
+
+# Database SQLite 
+*.sqlite
+*.sqlite3
+*.db
+
+# Variabili d'ambiente 
+.env
+.env.local
+
+# Log
+*.log
+npm-debug.log*
+
+# File di sistema operativi
+.DS_Store
+Thumbs.db
+
+# Cartelle di build/dist
+dist/
+build/
+
+backend/README.md
