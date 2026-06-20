@@ -1,28 +1,41 @@
-import { createHash } from "crypto";
+import { randomBytes, scrypt } from "crypto";
+import { promisify } from "util";
 import { Request, Response } from "express";
 import { User } from "../config/database.js";
 import Jwt from "jsonwebtoken";
 
+const scryptPromise = promisify(scrypt);
+
 export class AuthController {
+  private static async hashPassword(password: string, salt: string): Promise<string> {
+    const derivedKey = (await scryptPromise(password, salt, 64)) as Buffer;
+    return derivedKey.toString("hex");
+  }
+
   static async checkCredentials(req: Request, res: Response): Promise<boolean> {
     const { username, password } = req.body;
     if (!username || !password) return false;
 
-    const hashedPassword = createHash("sha256").update(password).digest("hex");
-
     const found = await User.findOne({
       where: {
-        username,
-        password: hashedPassword
+        username
       }
     });
 
-    return found !== null;
+    if (!found) return false;
+
+    const salt = found.get("salt") as string;
+    const storedPassword = found.get("password") as string;
+
+    const hashedPassword = await AuthController.hashPassword(password, salt);
+    return storedPassword === hashedPassword;
   }
 
   static async saveUser(req: Request, res: Response) {
     const { username, password } = req.body;
-    return User.create({ username, password });
+    const salt = randomBytes(16).toString("hex");
+    const hashedPassword = await AuthController.hashPassword(password, salt);
+    return User.create({ username, password: hashedPassword, salt });
   }
 
   static issueToken(username: string): string {
@@ -41,3 +54,4 @@ export class AuthController {
     Jwt.verify(token, secret, callback);
   }
 }
+
