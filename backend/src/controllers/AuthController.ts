@@ -1,49 +1,44 @@
-import { randomBytes, scrypt } from "crypto";
-import { promisify } from "util";
-import { Request, Response } from "express";
-import { User } from "../config/database.js";
+import { Request, Response, NextFunction } from "express";
+import { AuthService } from "../services/AuthService.js";
 import Jwt from "jsonwebtoken";
 
-const scryptPromise = promisify(scrypt);
-
 export class AuthController {
-  private static async hashPassword(password: string, salt: string): Promise<string> {
-    const derivedKey = (await scryptPromise(password, salt, 64)) as Buffer;
-    return derivedKey.toString("hex");
-  }
-
-  static async checkCredentials(req: Request, res: Response): Promise<boolean> {
-    const { username, password } = req.body;
-    if (!username || !password) return false;
-
-    const found = await User.findOne({
-      where: {
-        username
+  static async signup(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { username, password } = req.body;
+      const user = await AuthService.registerUser(username, password);
+      res.status(201).json({ username: user.username });
+    } catch (error: any) {
+      if (error.name === "SequelizeUniqueConstraintError") {
+        next({ status: 409, message: "Username already exists" });
+      } else {
+        next({ status: 500, message: "Could not create user account" });
       }
-    });
-
-    if (!found) return false;
-
-    const salt = found.get("salt") as string;
-    const storedPassword = found.get("password") as string;
-
-    const hashedPassword = await AuthController.hashPassword(password, salt);
-    return storedPassword === hashedPassword;
+    }
   }
 
-  static async saveUser(req: Request, res: Response) {
-    const { username, password } = req.body;
-    const salt = randomBytes(16).toString("hex");
-    const hashedPassword = await AuthController.hashPassword(password, salt);
-    return User.create({ username, password: hashedPassword, salt });
+  static async login(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { username, password } = req.body;
+      const user = await AuthService.verifyCredentials(username, password);
+      
+      if (!user) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      const token = AuthController.issueToken(user);
+      res.json({ token });
+    } catch (error) {
+      next(error);
+    }
   }
 
-  static issueToken(username: string): string {
+  static issueToken(user: any): string {
     const secret = process.env.TOKEN_SECRET;
     if (!secret) {
       throw new Error("TOKEN_SECRET is not defined in environment variables");
     }
-    return Jwt.sign({ username }, secret, { expiresIn: "24h" });
+    return Jwt.sign({ username: user.username, id_user: user.id_user }, secret, { expiresIn: "24h" });
   }
 
   static isTokenValid(token: string, callback: Jwt.VerifyCallback) {
@@ -54,4 +49,5 @@ export class AuthController {
     Jwt.verify(token, secret, callback);
   }
 }
+
 

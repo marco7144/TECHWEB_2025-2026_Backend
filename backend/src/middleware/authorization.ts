@@ -3,6 +3,7 @@ import { AuthController } from "../controllers/AuthController.js";
 
 export interface AuthenticatedRequest extends Request {
   username?: string;
+  id_user?: number;
 }
 
 export function enforceAuthentication(req: AuthenticatedRequest, res: Response, next: NextFunction) {
@@ -18,6 +19,7 @@ export function enforceAuthentication(req: AuthenticatedRequest, res: Response, 
       return next({ status: 401, message: "Unauthorized" });
     }
     req.username = decodedToken.username;
+    req.id_user = decodedToken.id_user;
     next();
   });
 }

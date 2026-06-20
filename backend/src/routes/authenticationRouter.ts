@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import { AuthController } from "../controllers/AuthController.js";
+import { validateSignup, validateAuth } from "../validators/authValidator.js";
 
 export const authenticationRouter = express.Router();
 
@@ -30,19 +31,7 @@ export const authenticationRouter = express.Router();
  *        401:
  *          description: Invalid credentials
  */
-authenticationRouter.post("/auth", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const isAuthenticated = await AuthController.checkCredentials(req, res);
-    if (isAuthenticated) {
-      const token = AuthController.issueToken(req.body.username);
-      res.json({ token });
-    } else {
-      res.status(401).json({ error: "Invalid credentials" });
-    }
-  } catch (error) {
-    next(error);
-  }
-});
+authenticationRouter.post("/auth", validateAuth, AuthController.login);
 
 /**
  * @swagger
@@ -71,11 +60,5 @@ authenticationRouter.post("/auth", async (req: Request, res: Response, next: Nex
  *        500:
  *          description: Internal server error
  */
-authenticationRouter.post("/signup", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const user: any = await AuthController.saveUser(req, res);
-    res.status(201).json({ username: user.username });
-  } catch (error) {
-    next({ status: 500, message: "Could not create user account" });
-  }
-});
+authenticationRouter.post("/signup", validateSignup, AuthController.signup);
+
