@@ -1,4 +1,5 @@
 import { Sequelize } from "sequelize";
+import { readFileSync } from "fs";
 import { createModel as createUserModel } from "../models/User.js";
 import { createModel as createSketchModel } from "../models/Sketch.js";
 import { createModel as createAttemptModel } from "../models/Attempt.js";
@@ -38,12 +39,26 @@ Attempt.belongsTo(User, { foreignKey: "id_user" });
 Sketch.hasMany(Attempt, { foreignKey: "id_sketch" });
 Attempt.belongsTo(Sketch, { foreignKey: "id_sketch" });
 
+async function seedWords() {
+  try {
+    const count = await Word.count();
+    if (count === 0) {
+      const wordsUrl = new URL("./words.json", import.meta.url);
+      const wordsData = JSON.parse(readFileSync(wordsUrl, "utf-8"));
+      await Word.bulkCreate(wordsData.map((word: string) => ({ text: word })));
+      console.log(`Database populated with ${wordsData.length} words`);
+    }
+  } catch (error: any) {
+    console.error("Failed to seed words:", error.message);
+  }
+}
 
-
-database.sync({ force : true })
-  .then(() => {
+database.sync({ force : false })
+  .then(async () => {
     console.log("Database synced successfully");
+    await seedWords();
   })
   .catch((err: any) => {
     console.error("Database synchronization failed:", err.message);
   });
+
