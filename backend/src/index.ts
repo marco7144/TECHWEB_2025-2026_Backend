@@ -7,6 +7,7 @@ import swaggerJSDoc from "swagger-jsdoc";
 
 import "./config/database.js";
 import { authenticationRouter } from "./routes/authenticationRouter.js";
+import { wordsRouter } from "./routes/wordsRouter.js";
 import { enforceAuthentication } from "./middleware/authorization.js";
 
 const app = express();
@@ -23,13 +24,23 @@ const swaggerSpec = swaggerJSDoc({
       title: "TechWeb Project API",
       version: "1.0.0",
     },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
   },
   apis: ["./src/routes/*Router.ts", "./dist/routes/*Router.js"],
 });
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 app.use(authenticationRouter);
-app.use(enforceAuthentication);
+app.use(wordsRouter);
+//app.use(enforceAuthentication);
 
 app.get("/api/v1/test", (req: Request, res: Response) => {
   res.json({ message: "Backend infrastructure active" });
