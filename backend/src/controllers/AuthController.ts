@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthService } from "../services/AuthService.js";
-import Jwt from "jsonwebtoken";
 
 export class AuthController {
   static async signup(req: Request, res: Response, next: NextFunction) {
@@ -26,28 +25,10 @@ export class AuthController {
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
-      const token = AuthController.issueToken(user);
+      const token = AuthService.issueToken(user);
       res.json({ token });
     } catch (error) {
       next(error);
     }
   }
-
-  static issueToken(user: any): string {
-    const secret = process.env.TOKEN_SECRET;
-    if (!secret) {
-      throw new Error("TOKEN_SECRET is not defined in environment variables");
-    }
-    return Jwt.sign({ username: user.username, id_user: user.id_user }, secret, { expiresIn: "24h" });
-  }
-
-  static isTokenValid(token: string, callback: Jwt.VerifyCallback) {
-    const secret = process.env.TOKEN_SECRET;
-    if (!secret) {
-      throw new Error("TOKEN_SECRET is not defined in environment variables");
-    }
-    Jwt.verify(token, secret, callback);
-  }
 }
-
-

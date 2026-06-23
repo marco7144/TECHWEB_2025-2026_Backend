@@ -1,25 +1,57 @@
 import { Request, Response, NextFunction } from "express";
-import { AuthController } from "../controllers/AuthController.js";
+import { AuthService } from "../services/AuthService.js";
 
 export interface AuthenticatedRequest extends Request {
   username?: string;
   id_user?: number;
 }
 
+export interface DecodedToken {
+  username: string;
+  id_user: number;
+}
+
 export function enforceAuthentication(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(" ")[1];
 
-  if (!token) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return next({ status: 401, message: "Unauthorized" });
   }
 
-  AuthController.isTokenValid(token, (err, decodedToken: any) => {
-    if (err) {
+  const token = authHeader.split(" ")[1];
+
+  AuthService.isTokenValid(token, (err, decodedToken) => {
+    if (err || !decodedToken) {
       return next({ status: 401, message: "Unauthorized" });
     }
-    req.username = decodedToken.username;
-    req.id_user = decodedToken.id_user;
+    
+    const decoded = decodedToken as DecodedToken;
+    req.username = decoded.username;
+    req.id_user = decoded.id_user;
+    next();
+  });
+}
+
+export function optionalAuthentication(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+
+  // Se l'header manca o non ha il formato Bearer si procede come ospite
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return next();
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  AuthService.isTokenValid(token, (err, decodedToken) => {
+    if (err || !decodedToken) {
+      // Se l'utente ha inviato un token invalido o scaduto, 
+      // restituiamo 401 anziché farlo passare come ospite.
+      return next({ status: 401, message: "Invalid or expired token" });
+    }
+
+    const decoded = decodedToken as DecodedToken;
+    req.username = decoded.username;
+    req.id_user = decoded.id_user;
     next();
   });
 }
