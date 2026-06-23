@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { AttemptController } from "../controllers/AttemptController.js";
 import { enforceAuthentication } from "../middleware/authorization.js";
+import { validateCreateAttempt } from "../validators/attemptValidator.js";
 
 export const attemptsRouter = Router();
 
@@ -40,4 +41,4 @@ export const attemptsRouter = Router();
  *        404:
  *          description: Sketch not found
  */
-attemptsRouter.post("/api/v1/sketches/:id/attempts", enforceAuthentication, AttemptController.submitAttempt);
+attemptsRouter.post("/api/v1/sketches/:id/attempts", enforceAuthentication, validateCreateAttempt, AttemptController.submitAttempt);

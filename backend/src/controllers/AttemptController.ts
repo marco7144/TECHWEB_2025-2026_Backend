@@ -11,15 +11,6 @@ export class AttemptController {
       const { guess } = req.body;//prendo "guess" dal body
       const id_user = req.id_user;//prendo id_user dal token
 
-      if (isNaN(id_sketch)) {//controllo se id_sketch è un numero
-        return res.status(400).json({ error: "Invalid sketch id" });
-      }
-      
-      //controllo sulla stringa guess
-      if (!guess || typeof guess !== "string" || guess.trim() === "") {
-        return res.status(400).json({ error: "guess is required and must be a non-empty string" });
-      }
-
       const result = await AttemptService.createAttempt(id_user!, id_sketch, guess);
       res.status(201).json(result);
     } catch (error: any) {

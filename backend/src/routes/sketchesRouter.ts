@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { SketchController } from "../controllers/SketchController.js";
 import { enforceAuthentication, optionalAuthentication } from "../middleware/authorization.js";
+import { validateCreateSketch, validateSketchId } from "../validators/sketchValidator.js";
 
 export const sketchesRouter = Router();
 
@@ -37,7 +38,7 @@ export const sketchesRouter = Router();
  *        444:
  *          description: Word not found
  */
-sketchesRouter.post("/api/v1/sketches", enforceAuthentication, SketchController.createSketch);
+sketchesRouter.post("/api/v1/sketches", enforceAuthentication, validateCreateSketch, SketchController.createSketch);
 
 /**
  * @swagger
@@ -75,4 +76,4 @@ sketchesRouter.get("/api/v1/sketches", optionalAuthentication, SketchController.
  *        404:
  *          description: Sketch not found
  */
-sketchesRouter.get("/api/v1/sketches/:id", optionalAuthentication, SketchController.getSketchById);
+sketchesRouter.get("/api/v1/sketches/:id", optionalAuthentication, validateSketchId, SketchController.getSketchById);

@@ -10,13 +10,6 @@ export class SketchController {
       const { id_word, path } = req.body;
       const id_user = req.id_user;
 
-      if (!id_word) {
-        return res.status(400).json({ error: "id_word is required" });
-      }
-      if (!path) {
-        return res.status(400).json({ error: "path (Base64 image) is required" });
-      }
-
       const newSketch = await SketchService.createSketch(id_user!, id_word, path);
       res.status(201).json(newSketch);
     } catch (error: any) {
@@ -43,10 +36,6 @@ export class SketchController {
   static async getSketchById(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const id = parseInt(req.params.id, 10);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: "Invalid sketch id" });
-      }
-
       const id_user = req.id_user;
       const sketch = await SketchService.getSketchById(id, id_user);
       res.json(sketch);
