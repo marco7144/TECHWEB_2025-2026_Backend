@@ -8,6 +8,7 @@ import swaggerJSDoc from "swagger-jsdoc";
 import "./config/database.js";
 import { authenticationRouter } from "./routes/authenticationRouter.js";
 import { wordsRouter } from "./routes/wordsRouter.js";
+import { sketchesRouter } from "./routes/sketchesRouter.js";
 import { enforceAuthentication } from "./middleware/authorization.js";
 
 const app = express();
@@ -15,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(morgan("dev"));
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 
 const swaggerSpec = swaggerJSDoc({
   definition: {
@@ -40,6 +41,7 @@ app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 app.use(authenticationRouter);
 app.use(wordsRouter);
+app.use(sketchesRouter);
 //app.use(enforceAuthentication);
 
 app.get("/api/v1/test", (req: Request, res: Response) => {
