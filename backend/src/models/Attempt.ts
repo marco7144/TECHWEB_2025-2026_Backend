@@ -15,23 +15,19 @@ export function createModel(database: Sequelize) {
             type: DataTypes.INTEGER,
             allowNull: false
         },
+        guess: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        is_correct: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
         timestamp: {
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW
-        },
-        score: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            validate: {
-                min: 0,
-                max: 10
-            }
-        },
-        is_won: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
         }
     })
 }

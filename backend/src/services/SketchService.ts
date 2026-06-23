@@ -45,6 +45,13 @@ export class SketchService {
       const sketchAttempts = attempts.filter(a => a.id_sketch === sketchData.id_sketch);
       const hasFailedTenTimes = sketchAttempts.length >= 10;
 
+      // Aggiungiamo l'elenco dei tentativi passati fatti dall'utente per questo sketch
+      sketchData.user_attempts = sketchAttempts.map((a: any) => ({
+        guess: a.guess,
+        is_correct: a.is_correct,
+        timestamp: a.timestamp
+      }));
+
       // Se nessuna delle condizioni è soddisfatta, nascondiamo la parola corretta
       if (!isAuthor && !hasGuessed && !hasFailedTenTimes) {
         if (sketchData.Word) {
@@ -74,14 +81,22 @@ export class SketchService {
 
     let hasGuessed = false;
     let hasFailedTenTimes = false;
+    let userAttempts: any[] = [];
 
     if (id_user) {
-      const attempts = await Attempt.findAll({
+      userAttempts = await Attempt.findAll({
         where: { id_user, id_sketch: sketchData.id_sketch }
       });
-      hasGuessed = attempts.some((a: any) => a.is_correct);
-      hasFailedTenTimes = attempts.length >= 10;
+      hasGuessed = userAttempts.some((a: any) => a.is_correct);
+      hasFailedTenTimes = userAttempts.length >= 10;
     }
+
+    // Aggiungiamo l'elenco dei tentativi passati fatti dall'utente per questo sketch
+    sketchData.user_attempts = userAttempts.map((a: any) => ({
+      guess: a.guess,
+      is_correct: a.is_correct,
+      timestamp: a.timestamp
+    }));
 
     if (!isAuthor && !hasGuessed && !hasFailedTenTimes) {
       if (sketchData.Word) {

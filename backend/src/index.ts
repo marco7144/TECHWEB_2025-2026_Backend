@@ -9,6 +9,7 @@ import "./config/database.js";
 import { authenticationRouter } from "./routes/authenticationRouter.js";
 import { wordsRouter } from "./routes/wordsRouter.js";
 import { sketchesRouter } from "./routes/sketchesRouter.js";
+import { attemptsRouter } from "./routes/attemptsRouter.js";
 import { enforceAuthentication } from "./middleware/authorization.js";
 
 const app = express();
@@ -42,6 +43,7 @@ app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 app.use(authenticationRouter);
 app.use(wordsRouter);
 app.use(sketchesRouter);
+app.use(attemptsRouter);
 //app.use(enforceAuthentication);
 
 app.get("/api/v1/test", (req: Request, res: Response) => {
