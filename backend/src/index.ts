@@ -10,6 +10,7 @@ import { authenticationRouter } from "./routes/authenticationRouter.js";
 import { wordsRouter } from "./routes/wordsRouter.js";
 import { sketchesRouter } from "./routes/sketchesRouter.js";
 import { attemptsRouter } from "./routes/attemptsRouter.js";
+import { usersRouter } from "./routes/usersRouter.js";
 import { enforceAuthentication } from "./middleware/authorization.js";
 
 const app = express();
@@ -44,6 +45,7 @@ app.use(authenticationRouter);
 app.use(wordsRouter);
 app.use(sketchesRouter);
 app.use(attemptsRouter);
+app.use(usersRouter);
 //app.use(enforceAuthentication);
 
 app.get("/api/v1/test", (req: Request, res: Response) => {
