@@ -1,6 +1,7 @@
-import { randomBytes, scrypt } from "crypto";
+import { randomBytes, scrypt, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { User } from "../config/database.js";
+import { Sequelize } from "sequelize";
 import Jwt from "jsonwebtoken";
 
 const scryptPromise = promisify(scrypt);
@@ -13,10 +14,14 @@ export class AuthService {
 
   static async verifyCredentials(username: string, password: string): Promise<any | null> {
     const found = await User.findOne({
-      where: {
-        username
-      }
+      where: Sequelize.where(
+        Sequelize.fn("lower", Sequelize.col("username")),
+        username.toLowerCase()
+      )
     });
+    //SELECT * FROM `Users` 
+    //WHERE LOWER(`username`) = 'marco' 
+    //LIMIT 1;
 
     if (!found) return null;
 
@@ -24,10 +29,36 @@ export class AuthService {
     const storedPassword = found.get("password") as string;
 
     const hashedPassword = await AuthService.hashPassword(password, salt);
-    return storedPassword === hashedPassword ? found : null;
+
+    //timing attack resistance, confronto costante delle password.
+    const storedBuf = Buffer.from(storedPassword, "hex");
+    const hashedBuf = Buffer.from(hashedPassword, "hex");
+
+    if (storedBuf.length !== hashedBuf.length) {
+      return null;
+    }
+
+    return timingSafeEqual(storedBuf, hashedBuf) ? found : null;
   }
 
   static async registerUser(username: string, password: string): Promise<any> {
+    // Verifica unicità dell'username case-insensitive
+    const existing = await User.findOne({
+      where: Sequelize.where(
+        Sequelize.fn("lower", Sequelize.col("username")),
+        username.toLowerCase()
+      )
+    });
+    //SELECT * FROM `Users` 
+    //WHERE LOWER(`username`) = 'marco' 
+    //LIMIT 1;
+
+    if (existing) {
+      const error = new Error("Username already exists");
+      error.name = "SequelizeUniqueConstraintError";
+      throw error;
+    }
+
     const salt = randomBytes(16).toString("hex");
     const hashedPassword = await AuthService.hashPassword(password, salt);
     return User.create({ username, password: hashedPassword, salt });

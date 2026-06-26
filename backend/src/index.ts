@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(morgan("dev"));
 app.use(cors());
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "1mb" }));
 
 const swaggerSpec = swaggerJSDoc({
   definition: {
@@ -48,7 +48,6 @@ app.use(sketchesRouter);
 app.use(attemptsRouter);
 app.use(usersRouter);
 app.use(leaderboardsRouter);
-//app.use(enforceAuthentication);
 
 app.get("/api/v1/test", (req: Request, res: Response) => {
   res.json({ message: "Backend infrastructure active" });
