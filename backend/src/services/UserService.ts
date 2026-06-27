@@ -18,7 +18,7 @@ export class UserService {
       attributes: [
         "id_sketch",
         [Sequelize.fn("COUNT", Sequelize.col("id_attempt")), "attemptCount"],
-        [Sequelize.fn("SUM", Sequelize.literal("CASE WHEN is_correct = 1 THEN 1 ELSE 0 END")), "correctCount"]
+        [Sequelize.fn("SUM", Sequelize.literal("CASE WHEN is_correct THEN 1 ELSE 0 END")), "correctCount"]
       ],
       where: { id_user },
       group: ["id_sketch"]

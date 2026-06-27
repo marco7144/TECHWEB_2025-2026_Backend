@@ -28,6 +28,9 @@ export const sketchesRouter = Router();
  *                path:
  *                  type: string
  *                  example: "data:image/png;base64,iVBORw0..."
+ *                words_token:
+ *                  type: string
+ *                  example: "eyJhbGciOiJIUzI1NiIsIn..."
  *      responses:
  *        201:
  *          description: Sketch created successfully

@@ -15,18 +15,23 @@ export const wordsRouter = Router();
  *        - bearerAuth: []
  *      responses:
  *        200:
- *          description: A list of 3 random words
+ *          description: A list of 3 random words and a verification token
  *          content:
  *            application/json:
  *              schema:
- *                type: array
- *                items:
- *                  type: object
- *                  properties:
- *                    id_word:
- *                      type: integer
- *                    text:
- *                      type: string
+ *                type: object
+ *                properties:
+ *                  words:
+ *                    type: array
+ *                    items:
+ *                      type: object
+ *                      properties:
+ *                        id_word:
+ *                          type: integer
+ *                        text:
+ *                          type: string
+ *                  token:
+ *                    type: string
  *        401:
  *          description: Unauthorized
  */

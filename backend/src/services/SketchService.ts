@@ -29,9 +29,10 @@ export class SketchService {
 
     // Se l'utente è loggato, cerchiamo tutti i suoi tentativi per capire se ha indovinato o esaurito i 10 tentativi
     let attempts: any[] = [];
-    if (id_user) {
+    if (id_user && sketches.length > 0) {
+      const sketchIds = sketches.map((sketch: any) => sketch.id_sketch);
       attempts = await Attempt.findAll({
-        where: { id_user }
+        where: { id_user, id_sketch: sketchIds }
       });
     }
 
