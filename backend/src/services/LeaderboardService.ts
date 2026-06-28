@@ -5,6 +5,20 @@ export class LeaderboardService {
   
   // Classifica dei migliori giocatori (in base alle parole indovinate)
   static async getPlayerLeaderboard() {
+    // #region SQL Equivalente (Top 10 Players)
+    /*
+    SELECT 
+        "User"."id_user", 
+        "User"."username", 
+        COUNT("Attempts"."id_attempt") AS "score"
+    FROM "Users" AS "User"
+    INNER JOIN "Attempts" AS "Attempts" ON "User"."id_user" = "Attempts"."user_id" 
+    WHERE "Attempts"."is_correct" = true
+    GROUP BY "User"."id_user", "User"."username"
+    ORDER BY "score" DESC
+    LIMIT 10;
+    */
+    // #endregion
     const players = await User.findAll({
       subQuery: false, // Evita la query di paginazione nidificata che rompe SQLite
       attributes: [
@@ -26,57 +40,106 @@ export class LeaderboardService {
     return players.map((p: any) => ({
       id_user: p.id_user,
       username: p.username,
+      //traduzione da string a number (la COUNT di sequelize viene restituita come string)
       score: parseInt(p.getDataValue("score") || "0", 10)
     }));
   }
 
-  // Classifica dei migliori disegnatori (in base alla % di sketch indovinati dagli altri utenti)
+  // Classifica dei migliori disegnatori (in base alla % di successo dei loro disegni presso altri utenti)
   static async getArtistLeaderboard() {
     const allUsers = await User.findAll({ attributes: ["id_user", "username"] });
 
+    // Recuperiamo tutti gli sketch con tutti i loro tentativi (sia corretti che errati)
     const sketches = await Sketch.findAll({
       include: [
         {
           model: Attempt,
-          where: { is_correct: true },
-          required: false // LEFT JOIN per prendere anche sketch non ancora indovinati
+          required: false // LEFT JOIN per includere anche sketch senza tentativi
         }
       ]
     });
 
-    const leaderboard = allUsers.map((user: any) => {
-      const userSketches = sketches.filter((s: any) => s.id_user === user.id_user);
-      const totalSketches = userSketches.length;
+    // raggruppo gli sketch per id_user in una Map 
+    const sketchesByUserId = new Map<number, any[]>();
+    for (const sketch of sketches) {
+      const authorId = (sketch as any).id_user;
+      if (!sketchesByUserId.has(authorId)) {
+        sketchesByUserId.set(authorId, []);
+      }
+      sketchesByUserId.get(authorId)!.push(sketch);
+    }
 
-      if (totalSketches === 0) {
+    const leaderboard = allUsers.map((user: any) => {
+      // Prendiamo gli sketch di cui l'utente è l'autore dalla Map
+      const userSketches = sketchesByUserId.get(user.id_user) || [];
+      
+      let totalAttemptsByOthers = 0;
+      let successfulAttemptsByOthers = 0;
+      let attemptedSketchesCount = 0;
+
+      
+      for (const sketch of userSketches) {
+        const attempts = (sketch as any).Attempts || [];
+        // Filtriamo per considerare solo i tentativi fatti dagli ALTRI utenti
+        const attemptsByOthers = attempts.filter((a: any) => a.id_user !== user.id_user);
+
+        if (attemptsByOthers.length === 0) {
+          continue; // Nessuno ha ancora provato a indovinare questo sketch, lo ignoriamo
+        }
+
+        attemptedSketchesCount++;
+
+        // Mappa per tracciare lo stato finale di ogni utente su questo sketch (userId -> hasGuessed)
+        const attemptsByUser = new Map<number, boolean>();
+        for (const a of attemptsByOthers) {
+          const userId = a.id_user;
+          if (!attemptsByUser.has(userId)) {
+            attemptsByUser.set(userId, a.is_correct);
+          } else if (a.is_correct && !attemptsByUser.get(userId)) {
+            attemptsByUser.set(userId, true);
+          }
+        }
+
+        // Ogni utente unico che ha partecipato conta come 1 tentativo complessivo per questo sketch
+        totalAttemptsByOthers += attemptsByUser.size;
+
+        // Contiamo quanti di questi utenti unici sono riusciti a indovinarlo
+        for (const hasGuessed of attemptsByUser.values()) {
+          if (hasGuessed) {
+            successfulAttemptsByOthers++;
+          }
+        }
+      }
+
+      if (totalAttemptsByOthers === 0) {
         return {
           id_user: user.id_user,
           username: user.username,
           percentage: 0,
+          total_attempts: 0,
+          successful_attempts: 0,
           sketches_count: 0
         };
       }
 
-      // Conta gli sketch dell'utente che sono stati indovinati da altri
-      const guessedSketchesCount = userSketches.filter((s: any) => {
-        const attempts = s.Attempts || [];
-        return attempts.some((a: any) => a.is_correct && a.id_user !== user.id_user);
-      }).length;
-
-      const percentage = Math.round((guessedSketchesCount / totalSketches) * 100);
+      // Percentuale di successo dei disegni: quanti degli utenti che ci hanno provato hanno indovinato
+      const percentage = Math.round((successfulAttemptsByOthers / totalAttemptsByOthers) * 100);
 
       return {
         id_user: user.id_user,
         username: user.username,
         percentage,
-        sketches_count: totalSketches
+        total_attempts: totalAttemptsByOthers,
+        successful_attempts: successfulAttemptsByOthers,
+        sketches_count: attemptedSketchesCount
       };
     });
 
-    // Filtra chi non ha mai disegnato ed ordina per percentuale decrescente (e per numero di sketch in caso di parità)
+    // Filtriamo chi non ha mai ricevuto tentativi (evita spammer senza interazione)
+    // e ordiniamo per percentuale decrescente (e per tentativi totali ricevuti come tie-breaker)
     return leaderboard
-      .filter(item => item.sketches_count > 0)
-      .sort((a, b) => b.percentage - a.percentage || b.sketches_count - a.sketches_count)
+      .filter(item => item.total_attempts > 0)
+      .sort((a, b) => b.percentage - a.percentage || b.total_attempts - a.total_attempts)
       .slice(0, 10);
   }
 }
