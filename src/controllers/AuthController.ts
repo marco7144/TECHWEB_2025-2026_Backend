@@ -25,6 +25,9 @@ export class AuthController {
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
+      user.token_version = (user.token_version || 0) + 1;
+      await user.save();
+
       const token = AuthService.issueToken(user);
       res.json({ token });
     } catch (error) {

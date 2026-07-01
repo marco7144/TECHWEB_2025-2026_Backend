@@ -69,7 +69,11 @@ export class AuthService {
     if (!secret) {
       throw new Error("TOKEN_SECRET is not defined in environment variables");
     }
-    return Jwt.sign({ username: user.username, id_user: user.id_user }, secret, { expiresIn: "24h" });
+    return Jwt.sign(
+      { username: user.username, id_user: user.id_user, token_version: user.token_version },
+      secret,
+      { expiresIn: "24h" }
+    );
   }
 
   static isTokenValid(token: string, callback: Jwt.VerifyCallback) {
@@ -78,5 +82,10 @@ export class AuthService {
       throw new Error("TOKEN_SECRET is not defined in environment variables");
     }
     Jwt.verify(token, secret, callback);
+  }
+
+  static async validateTokenVersion(id_user: number, token_version: number): Promise<boolean> {
+    const user = await User.findByPk(id_user);
+    return !!user && user.get("token_version") === token_version;
   }
 }
