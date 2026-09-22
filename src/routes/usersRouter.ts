@@ -16,7 +16,15 @@ export const usersRouter = Router();
  *      responses:
  *        200:
  *          description: User statistics retrieved successfully
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/UserStats'
  *        401:
  *          description: Unauthorized
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 usersRouter.get("/api/v1/users/me/stats", enforceAuthentication, UserController.getMyStats);

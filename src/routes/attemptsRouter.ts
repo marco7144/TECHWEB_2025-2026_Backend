@@ -26,19 +26,31 @@ export const attemptsRouter = Router();
  *        content:
  *          application/json:
  *            schema:
- *              type: object
- *              properties:
- *                guess:
- *                  type: string
- *                  example: "gatto"
+ *              $ref: '#/components/schemas/CreateAttemptRequest'
  *      responses:
  *        201:
  *          description: Attempt registered successfully
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/AttemptResponse'
  *        400:
  *          description: Invalid parameters
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  *        403:
  *          description: Action forbidden (e.g. self guess, no attempts left)
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  *        404:
  *          description: Sketch not found
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 attemptsRouter.post("/api/v1/sketches/:id/attempts", enforceAuthentication, validateCreateAttempt, AttemptController.submitAttempt);

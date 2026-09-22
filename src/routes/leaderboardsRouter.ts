@@ -13,6 +13,12 @@ export const leaderboardsRouter = Router();
  *      responses:
  *        200:
  *          description: Player leaderboard retrieved successfully
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: array
+ *                items:
+ *                  $ref: '#/components/schemas/PlayerRanking'
  */
 leaderboardsRouter.get("/api/v1/leaderboards/players", LeaderboardController.getPlayers);
 
@@ -26,5 +32,11 @@ leaderboardsRouter.get("/api/v1/leaderboards/players", LeaderboardController.get
  *      responses:
  *        200:
  *          description: Artist leaderboard retrieved successfully
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: array
+ *                items:
+ *                  $ref: '#/components/schemas/ArtistRanking'
  */
 leaderboardsRouter.get("/api/v1/leaderboards/artists", LeaderboardController.getArtists);

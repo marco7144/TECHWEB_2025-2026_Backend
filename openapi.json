@@ -1,0 +1,854 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TechWeb Project API",
+    "version": "1.0.0",
+    "description": "Quicksketch API documentation generated with OpenAPI 3.1.0 and Swagger"
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "UserCredentials": {
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "Kyle"
+          },
+          "password": {
+            "type": "string",
+            "example": "p4ssw0rd"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        }
+      },
+      "SignupResponse": {
+        "type": "object",
+        "required": [
+          "username"
+        ],
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "Kyle"
+          },
+          "message": {
+            "type": "string",
+            "example": "User created successfully"
+          }
+        }
+      },
+      "WordChoice": {
+        "type": "object",
+        "required": [
+          "id_word",
+          "text"
+        ],
+        "properties": {
+          "id_word": {
+            "type": "integer",
+            "example": 1
+          },
+          "text": {
+            "type": "string",
+            "example": "gatto"
+          }
+        }
+      },
+      "WordsResponse": {
+        "type": "object",
+        "required": [
+          "words",
+          "token"
+        ],
+        "properties": {
+          "words": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WordChoice"
+            }
+          },
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsIn..."
+          }
+        }
+      },
+      "BackendAttempt": {
+        "type": "object",
+        "required": [
+          "guess",
+          "is_correct"
+        ],
+        "properties": {
+          "guess": {
+            "type": "string",
+            "example": "cane"
+          },
+          "is_correct": {
+            "type": "boolean",
+            "example": false
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BackendSketch": {
+        "type": "object",
+        "required": [
+          "id_sketch",
+          "path",
+          "User"
+        ],
+        "properties": {
+          "id_sketch": {
+            "type": "integer",
+            "example": 1
+          },
+          "id_user": {
+            "type": "integer",
+            "example": 2
+          },
+          "id_word": {
+            "type": "integer",
+            "example": 5
+          },
+          "path": {
+            "type": "string",
+            "example": "{\"objects\":[]}"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "User": {
+            "type": "object",
+            "required": [
+              "username"
+            ],
+            "properties": {
+              "username": {
+                "type": "string",
+                "example": "marco"
+              }
+            }
+          },
+          "Word": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "example": "gatto"
+              }
+            }
+          },
+          "user_attempts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BackendAttempt"
+            }
+          }
+        }
+      },
+      "SketchDetail": {
+        "type": "object",
+        "required": [
+          "id_sketch",
+          "path",
+          "User"
+        ],
+        "properties": {
+          "id_sketch": {
+            "type": "integer",
+            "example": 1
+          },
+          "path": {
+            "type": "string",
+            "example": "{\"objects\":[]}"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "User": {
+            "type": "object",
+            "required": [
+              "username"
+            ],
+            "properties": {
+              "username": {
+                "type": "string",
+                "example": "marco"
+              }
+            }
+          },
+          "Word": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "example": "gatto"
+              }
+            }
+          },
+          "user_attempts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BackendAttempt"
+            }
+          }
+        }
+      },
+      "CreateSketchRequest": {
+        "type": "object",
+        "required": [
+          "id_word",
+          "path",
+          "words_token"
+        ],
+        "properties": {
+          "id_word": {
+            "type": "integer",
+            "example": 1
+          },
+          "path": {
+            "type": "string",
+            "example": "{\"objects\":[]}"
+          },
+          "words_token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsIn..."
+          }
+        }
+      },
+      "CreateAttemptRequest": {
+        "type": "object",
+        "required": [
+          "guess"
+        ],
+        "properties": {
+          "guess": {
+            "type": "string",
+            "example": "gatto"
+          }
+        }
+      },
+      "AttemptResponse": {
+        "type": "object",
+        "required": [
+          "is_correct",
+          "attempts_remaining"
+        ],
+        "properties": {
+          "id_attempt": {
+            "type": "integer",
+            "example": 12
+          },
+          "guess": {
+            "type": "string",
+            "example": "gatto"
+          },
+          "is_correct": {
+            "type": "boolean",
+            "example": true
+          },
+          "attempts_remaining": {
+            "type": "integer",
+            "example": 9
+          },
+          "solution": {
+            "type": "string",
+            "example": "gatto"
+          }
+        }
+      },
+      "PlayerRanking": {
+        "type": "object",
+        "required": [
+          "id_user",
+          "username",
+          "score"
+        ],
+        "properties": {
+          "id_user": {
+            "type": "integer",
+            "example": 1
+          },
+          "username": {
+            "type": "string",
+            "example": "marco"
+          },
+          "score": {
+            "type": "integer",
+            "example": 15
+          }
+        }
+      },
+      "ArtistRanking": {
+        "type": "object",
+        "required": [
+          "id_user",
+          "username",
+          "percentage",
+          "total_attempts",
+          "successful_attempts",
+          "sketches_count"
+        ],
+        "properties": {
+          "id_user": {
+            "type": "integer",
+            "example": 1
+          },
+          "username": {
+            "type": "string",
+            "example": "marco"
+          },
+          "percentage": {
+            "type": "integer",
+            "example": 85
+          },
+          "total_attempts": {
+            "type": "integer",
+            "example": 20
+          },
+          "successful_attempts": {
+            "type": "integer",
+            "example": 17
+          },
+          "sketches_count": {
+            "type": "integer",
+            "example": 5
+          }
+        }
+      },
+      "UserStats": {
+        "type": "object",
+        "required": [
+          "sketches_count",
+          "guessed_count",
+          "attempts_count",
+          "unguessed_count"
+        ],
+        "properties": {
+          "sketches_count": {
+            "type": "integer",
+            "example": 3
+          },
+          "guessed_count": {
+            "type": "integer",
+            "example": 12
+          },
+          "attempts_count": {
+            "type": "integer",
+            "example": 25
+          },
+          "unguessed_count": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "An error occurred"
+          },
+          "code": {
+            "type": "integer",
+            "example": 400
+          },
+          "description": {
+            "type": "string",
+            "example": "Invalid input provided"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/v1/words/random": {
+      "get": {
+        "description": "Get 3 random words for drawing",
+        "produces": [
+          "application/json"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of 3 random words and a verification token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WordsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me/stats": {
+      "get": {
+        "description": "Get personal stats for the authenticated user",
+        "produces": [
+          "application/json"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStats"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sketches": {
+      "post": {
+        "description": "Create a new sketch",
+        "produces": [
+          "application/json"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Sketch details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSketchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sketch created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackendSketch"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing parameter or validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - token does not belong to authenticated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Word not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "description": "List all sketches with anti-spoiler word hiding",
+        "produces": [
+          "application/json"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of sketches",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BackendSketch"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sketches/{id}": {
+      "get": {
+        "description": "Get details of a single sketch",
+        "produces": [
+          "application/json"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sketch details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SketchDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sketch not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/leaderboards/players": {
+      "get": {
+        "description": "Get ranking of best players based on correctly guessed words",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Player leaderboard retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlayerRanking"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/leaderboards/artists": {
+      "get": {
+        "description": "Get ranking of best artists based on sketch guess accuracy",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Artist leaderboard retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArtistRanking"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth": {
+      "post": {
+        "description": "Authenticate user",
+        "produces": [
+          "application/json"
+        ],
+        "requestBody": {
+          "description": "User credentials to authenticate",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCredentials"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signup": {
+      "post": {
+        "description": "Create a new user account",
+        "produces": [
+          "application/json"
+        ],
+        "requestBody": {
+          "description": "User registration details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCredentials"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Username already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sketches/{id}/attempts": {
+      "post": {
+        "description": "Submit a guess for a sketch",
+        "produces": [
+          "application/json"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Guess attempt details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAttemptRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Attempt registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Action forbidden (e.g. self guess, no attempts left)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sketch not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}

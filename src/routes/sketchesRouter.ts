@@ -20,26 +20,38 @@ export const sketchesRouter = Router();
  *        content:
  *          application/json:
  *            schema:
- *              type: object
- *              properties:
- *                id_word:
- *                  type: integer
- *                  example: 1
- *                path:
- *                  type: string
- *                  example: "data:image/png;base64,iVBORw0..."
- *                words_token:
- *                  type: string
- *                  example: "eyJhbGciOiJIUzI1NiIsIn..."
+ *              $ref: '#/components/schemas/CreateSketchRequest'
  *      responses:
  *        201:
  *          description: Sketch created successfully
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/BackendSketch'
  *        400:
  *          description: Missing parameter or validation error
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  *        401:
  *          description: Unauthorized
- *        444:
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *        403:
+ *          description: Forbidden - token does not belong to authenticated user
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *        404:
  *          description: Word not found
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 sketchesRouter.post("/api/v1/sketches", enforceAuthentication, validateCreateSketch, SketchController.createSketch);
 
@@ -55,6 +67,12 @@ sketchesRouter.post("/api/v1/sketches", enforceAuthentication, validateCreateSke
  *      responses:
  *        200:
  *          description: A list of sketches
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: array
+ *                items:
+ *                  $ref: '#/components/schemas/BackendSketch'
  */
 sketchesRouter.get("/api/v1/sketches", optionalAuthentication, SketchController.listSketches);
 
@@ -76,7 +94,15 @@ sketchesRouter.get("/api/v1/sketches", optionalAuthentication, SketchController.
  *      responses:
  *        200:
  *          description: Sketch details
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/SketchDetail'
  *        404:
  *          description: Sketch not found
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 sketchesRouter.get("/api/v1/sketches/:id", optionalAuthentication, validateSketchId, SketchController.getSketchById);

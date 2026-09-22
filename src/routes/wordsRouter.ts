@@ -19,20 +19,12 @@ export const wordsRouter = Router();
  *          content:
  *            application/json:
  *              schema:
- *                type: object
- *                properties:
- *                  words:
- *                    type: array
- *                    items:
- *                      type: object
- *                      properties:
- *                        id_word:
- *                          type: integer
- *                        text:
- *                          type: string
- *                  token:
- *                    type: string
+ *                $ref: '#/components/schemas/WordsResponse'
  *        401:
  *          description: Unauthorized
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 wordsRouter.get("/api/v1/words/random", enforceAuthentication, WordController.getRandomWords);
