@@ -10,10 +10,18 @@ export class SketchService {
     }
 
     // Crea lo sketch
-    return Sketch.create({
+    const created = await Sketch.create({
       id_user,
       id_word,
       path
+    });
+
+    // Ricarica con associazione User e Word per rispettare il contratto BackendSketch
+    return Sketch.findByPk((created as any).id_sketch, {
+      include: [
+        { model: User, attributes: ["username"] },
+        { model: Word, attributes: ["text"] }
+      ]
     });
   }
 

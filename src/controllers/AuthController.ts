@@ -6,7 +6,10 @@ export class AuthController {
     try {
       const { username, password } = req.body;
       const user = await AuthService.registerUser(username, password);
-      res.status(201).json({ username: user.username });
+      res.status(201).json({
+        username: user.username,
+        message: "User created successfully"
+      });
     } catch (error: any) {
       if (error.name === "SequelizeUniqueConstraintError") {
         next({ status: 409, message: "Username already exists" });

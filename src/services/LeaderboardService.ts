@@ -24,23 +24,27 @@ export class LeaderboardService {
       attributes: [
         "id_user",
         "username",
-        [Sequelize.fn("COUNT", Sequelize.col("Attempts.id_attempt")), "score"]
+        [
+          Sequelize.literal("COALESCE(SUM(CASE WHEN Attempts.is_correct THEN 1 ELSE 0 END), 0)"),
+          "score"
+        ]
       ],
       include: [{
         model: Attempt,
         attributes: [],
-        where: { is_correct: true },
-        required: true // Mostra solo chi ha indovinato almeno 1 parola
+        required: false // LEFT JOIN: include anche gli utenti con 0 parole indovinate o solo tentativi falliti
       }],
       group: ["User.id_user", "User.username"],
-      order: [[Sequelize.literal("score"), "DESC"]],
+      order: [
+        [Sequelize.literal("score"), "DESC"],
+        ["username", "ASC"]
+      ],
       limit: 10
     });
 
     return players.map((p: any) => ({
       id_user: p.id_user,
       username: p.username,
-      //traduzione da string a number (la COUNT di sequelize viene restituita come string)
       score: parseInt(p.getDataValue("score") || "0", 10)
     }));
   }
