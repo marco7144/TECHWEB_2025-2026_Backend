@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: techweb-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: DIALECT
+        value: sqlite
+      - key: DB_CONNECTION_URI
+        value: sqlite:database.db
+      - key: TOKEN_SECRET
+        generateValue: true
