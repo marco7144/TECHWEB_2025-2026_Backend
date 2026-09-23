@@ -17,7 +17,13 @@ if (!dialect) {
 
 export const database = new Sequelize(dbUri, {
   dialect: dialect,
-  logging: false
+  logging: false,
+  dialectOptions: dialect === "postgres" ? {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  } : {}
 });
 
 createUserModel(database);

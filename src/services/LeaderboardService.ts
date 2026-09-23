@@ -25,7 +25,7 @@ export class LeaderboardService {
         "id_user",
         "username",
         [
-          Sequelize.literal("COALESCE(SUM(CASE WHEN Attempts.is_correct THEN 1 ELSE 0 END), 0)"),
+          Sequelize.literal('COALESCE(SUM(CASE WHEN "Attempts"."is_correct" THEN 1 ELSE 0 END), 0)'),
           "score"
         ]
       ],
