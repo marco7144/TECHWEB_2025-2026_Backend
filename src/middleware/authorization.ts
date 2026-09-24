@@ -47,6 +47,11 @@ function createAuthMiddleware(isRequired: boolean, invalidMessage: string) {
     try {
       const decoded = await verifyToken(token);
       if (!decoded) {
+        if (!isRequired) {
+          req.username = undefined;
+          req.id_user = undefined;
+          return next();
+        }
         return next({ status: 401, message: invalidMessage });
       }
       
@@ -54,6 +59,11 @@ function createAuthMiddleware(isRequired: boolean, invalidMessage: string) {
       req.id_user = decoded.id_user;
       next();
     } catch (error) {
+      if (!isRequired) {
+        req.username = undefined;
+        req.id_user = undefined;
+        return next();
+      }
       next(error);
     }
   };

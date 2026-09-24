@@ -53,11 +53,13 @@ export class LeaderboardService {
   static async getArtistLeaderboard() {
     const allUsers = await User.findAll({ attributes: ["id_user", "username"] });
 
-    // Recuperiamo tutti gli sketch con tutti i loro tentativi (sia corretti che errati)
+    // Recuperiamo solo id_sketch e id_user (escludendo l'enorme colonna 'path') con i rispettivi tentativi
     const sketches = await Sketch.findAll({
+      attributes: ["id_sketch", "id_user"],
       include: [
         {
           model: Attempt,
+          attributes: ["id_attempt", "id_user", "is_correct"],
           required: false // LEFT JOIN per includere anche sketch senza tentativi
         }
       ]

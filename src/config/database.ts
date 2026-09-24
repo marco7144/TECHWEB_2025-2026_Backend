@@ -15,10 +15,16 @@ if (!dialect) {
   throw new Error("DIALECT is not defined in environment variables");
 }
 
+const isPostgres = dialect === "postgres";
+const useSsl = isPostgres && (
+  process.env.DB_SSL === "true" ||
+  (process.env.NODE_ENV === "production" && process.env.DB_SSL !== "false")
+);
+
 export const database = new Sequelize(dbUri, {
   dialect: dialect,
   logging: false,
-  dialectOptions: dialect === "postgres" ? {
+  dialectOptions: useSsl ? {
     ssl: {
       require: true,
       rejectUnauthorized: false
