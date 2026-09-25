@@ -1,0 +1,31 @@
+services:
+  backend:
+    build: .
+    container_name: quicksketch-backend
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - PORT=${PORT:-3000}
+      - DIALECT=${DIALECT:-postgres}
+      - DB_CONNECTION_URI=${DB_CONNECTION_URI:-postgres://postgres:postgres@db:5432/quicksketch}
+      - DB_SSL=${DB_SSL:-false}
+      - TOKEN_SECRET=${TOKEN_SECRET:-quicksketch_super_secret_jwt_key_2025_2026}
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    container_name: quicksketch-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-quicksketch}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
