@@ -12,7 +12,8 @@ services:
       - DB_SSL=${DB_SSL:-false}
       - TOKEN_SECRET=${TOKEN_SECRET:-quicksketch_super_secret_jwt_key_2025_2026}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:16-alpine
@@ -26,6 +27,11 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-quicksketch}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d quicksketch"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
 
 volumes:
   postgres_data:

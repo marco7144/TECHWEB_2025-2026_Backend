@@ -65,12 +65,26 @@ async function seedWords() {
   }
 }
 
-database.sync({ force : false })
-  .then(async () => {
-    console.log("Database synced successfully");
-    await seedWords();
-  })
-  .catch((err: any) => {
-    console.error("Database synchronization failed:", err.message);
-  });
+async function syncDatabase(retries = 10, delayMs = 2000): Promise<void> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await database.authenticate();
+      await database.sync({ force: false });
+      console.log("Database synced successfully");
+      await seedWords();
+      return;
+    } catch (err: any) {
+      console.error(`Database connection/sync attempt ${attempt}/${retries} failed:`, err.message);
+      if (attempt < retries) {
+        console.log(`Retrying database sync in ${delayMs / 1000}s...`);
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      } else {
+        console.error("Database synchronization failed after maximum retries.");
+      }
+    }
+  }
+}
+
+syncDatabase();
+
 
